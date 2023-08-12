@@ -4,11 +4,14 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 
 	csgolog "github.com/janstuemmel/csgo-log"
 )
 
 func main() {
+	//  Client data
+
 	// listen to incoming udp packets
 	udpServer, err := net.ListenPacket("udp", ":1053")
 	if err != nil {
@@ -28,12 +31,18 @@ func main() {
 }
 
 func response(udpServer net.PacketConn, addr net.Addr, buf []byte) {
+	fileName := "output.log"
 	// time := time.Now().Format(time.ANSIC)
 	// responseStr := fmt.Sprintf("time received: %v. Your message: %v!", time, string(buf))
 	line := string(buf)
 	fmt.Println(line)
 	data := parse(line)
 	// responseStr := fmt.Sprintf("time received: %v. Your message: %v!", time, data)
+	err := os.WriteFile(fileName, []byte(data), 0644)
+	if err != nil {
+		fmt.Println("Error writing to file:", err)
+		return
+	}
 	udpServer.WriteTo(cleanByteData([]byte(data)), addr)
 	// udpServer.WriteTo([]byte(data), responseStr)
 }
